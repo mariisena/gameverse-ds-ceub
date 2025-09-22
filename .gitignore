@@ -1,0 +1,37 @@
+# .NET / C#
+bin/
+obj/
+out/
+*.dll
+*.exe
+*.pdb
+*.cache
+*.log
+
+# Pacotes
+*.nupkg
+*.snupkg
+packages/
+*.nuspec
+
+# Usuário/IDE
+.vscode/
+.idea/
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Testes
+TestResult*
+*.coverage
+*.coveragexml
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# SO
+.DS_Store
+Thumbs.db
