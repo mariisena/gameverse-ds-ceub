@@ -8,9 +8,9 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: SenhaRoot2705!93 # Senha para o usuário root do MySQL
-      MYSQL_DATABASE: gameverse_db # Nome do banco de dados que será criado
+      MYSQL_DATABASE: gameverse_db_mysql  # Nome do banco de dados que será criado
       MYSQL_USER: gameverse_app # Nome do usuário da aplicação
-      MYSQL_PASSWORD: M@r!2705#93 # Senha para o usuário da aplicação
+      MYSQL_PASSWORD: Senh@F0rt&345# # Senha para o usuário da aplicação
     ports:
       - "3306:3306" # Porta padrão do MySQL
     volumes:
