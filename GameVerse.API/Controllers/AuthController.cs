@@ -37,17 +37,44 @@ public class AuthController : ControllerBase
     /// <param name="request">Dados do usuário para registro.</param>
     /// <returns>Retorna os dados do usuário recém-criado.</returns>
     /// <response code="201">Usuário criado com sucesso.</response>
+    /// <response code="400">Dados inválidos fornecidos.</response>
+    /// <response code="409">Email ou username já existem.</response>
     /// <response code="500">Ocorreu um erro interno.</response>
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
-        var newUser = await _authService.RegisterUserAsync(
-            request.FullName,
-            request.Username,
-            request.Email,
-            request.Password
-        );
-        return CreatedAtAction(nameof(Register), new { id = newUser.Id }, new { newUser.Id, newUser.Username, newUser.Email });
+        try
+        {
+            // Validação básica de entrada
+            if (string.IsNullOrWhiteSpace(request.Email) || 
+                string.IsNullOrWhiteSpace(request.Username) || 
+                string.IsNullOrWhiteSpace(request.Password))
+            {
+                return BadRequest(new { message = "Todos os campos são obrigatórios." });
+            }
+
+            var newUser = await _authService.RegisterUserAsync(
+                request.FullName,
+                request.Username,
+                request.Email,
+                request.Password
+            );
+            
+            return CreatedAtAction(nameof(Register), new { id = newUser.Id }, 
+                new { newUser.Id, newUser.Username, newUser.Email });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Erro interno do servidor.", details = ex.Message });
+        }
     }
 
     /// <summary>
@@ -61,20 +88,44 @@ public class AuthController : ControllerBase
     /// <param name="request">Credenciais de login (email ou username) e senha.</param>
     /// <returns>Retorna uma mensagem de sucesso e o token JWT.</returns>
     /// <response code="200">Login bem-sucedido.</response>
+    /// <response code="400">Dados de entrada inválidos.</response>
     /// <response code="401">Credenciais inválidas.</response>
+    /// <response code="500">Erro interno do servidor.</response>
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var authenticatedUser = await _authService.LoginUserAsync(request.Identifier, request.Password);
-
-        if (authenticatedUser == null)
+        try
         {
-            return Unauthorized(new { message = "Credenciais inválidas." });
+            // Validação básica de entrada
+            if (string.IsNullOrWhiteSpace(request.Identifier) || 
+                string.IsNullOrWhiteSpace(request.Password))
+            {
+                return BadRequest(new { message = "Identifier e Password são obrigatórios." });
+            }
+
+            var authenticatedUser = await _authService.LoginUserAsync(request.Identifier, request.Password);
+
+            if (authenticatedUser == null)
+            {
+                return Unauthorized(new { message = "Credenciais inválidas." });
+            }
+
+            var token = GenerateJwtToken(authenticatedUser);
+
+            return Ok(new { message = "Login bem-sucedido!", token = token });
         }
-
-        var token = GenerateJwtToken(authenticatedUser);
-
-        return Ok(new { message = "Login bem-sucedido!", token = token });
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return StatusCode(500, new { message = "Erro de configuração.", details = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Erro interno do servidor.", details = ex.Message });
+        }
     }
 
     /// <summary>
@@ -83,53 +134,68 @@ public class AuthController : ControllerBase
     /// <returns>Dados do usuário logado.</returns>
     /// <response code="200">Retorna as informações do usuário.</response>
     /// <response code="401">Usuário não autenticado.</response>
+    /// <response code="500">Erro interno do servidor.</response>
     [HttpGet("me")]
     [Authorize]
     public IActionResult GetCurrentUser()
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-
-        if (userIdClaim == null)
+        try
         {
-            return Unauthorized();
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (userIdClaim == null)
+            {
+                return Unauthorized(new { message = "Token inválido ou ausente." });
+            }
+
+            var userInfo = new
+            {
+                Id = userIdClaim.Value,
+                Email = User.FindFirst(ClaimTypes.Email)?.Value,
+                Username = User.FindFirst("username")?.Value
+            };
+
+            return Ok(userInfo);
         }
-
-        var userInfo = new
+        catch (Exception ex)
         {
-            Id = userIdClaim.Value,
-            Email = User.FindFirst(ClaimTypes.Email)?.Value,
-            Username = User.FindFirst("username")?.Value
-        };
-
-        return Ok(userInfo);
+            return StatusCode(500, new { message = "Erro interno do servidor.", details = ex.Message });
+        }
     }
 
     private string GenerateJwtToken(User user)
     {
-        var jwtKey = _configuration["Jwt:Key"];
-        if (string.IsNullOrEmpty(jwtKey))
+        try
         {
-            throw new InvalidOperationException("A chave secreta do JWT não está configurada no appsettings.json");
+            var jwtKey = _configuration["Jwt:Key"];
+            if (string.IsNullOrEmpty(jwtKey))
+            {
+                throw new InvalidOperationException("A chave secreta do JWT não está configurada no appsettings.json");
+            }
+            
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim("username", user.Username),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: null,
+                audience: null,
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(8),
+                signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
-        
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-        var claims = new[]
+        catch (Exception ex)
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim("username", user.Username),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
-
-        var token = new JwtSecurityToken(
-            issuer: null,
-            audience: null,
-            claims: claims,
-            expires: DateTime.UtcNow.AddHours(8),
-            signingCredentials: credentials);
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
+            throw new InvalidOperationException($"Erro ao gerar token JWT: {ex.Message}", ex);
+        }
     }
 }

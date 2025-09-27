@@ -34,22 +34,64 @@ public class GamesController : ControllerBase
     /// <param name="request">Dados do jogo a ser criado.</param>
     /// <returns>O jogo recém-criado.</returns>
     /// <response code="201">Jogo criado com sucesso.</response>
+    /// <response code="400">Dados inválidos fornecidos.</response>
     /// <response code="401">Usuário não autenticado.</response>
+    /// <response code="500">Erro interno do servidor.</response>
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> CreateGame([FromBody] GameRequest request)
     {
-        var ownerId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var newGame = new Game
+        try
         {
-            Title = request.Title,
-            Description = request.Description,
-            Genre = request.Genre,
-            Status = request.Status
-        };
+            // Validação básica de entrada
+            if (string.IsNullOrWhiteSpace(request.Title))
+            {
+                return BadRequest(new { message = "O título do jogo é obrigatório." });
+            }
 
-        var createdGame = await _gameService.CreateGameAsync(newGame, ownerId);
-        return CreatedAtAction(nameof(GetGameById), new { id = createdGame.Id }, createdGame);
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized(new { message = "Token inválido." });
+            }
+
+            if (!Guid.TryParse(userIdClaim, out var ownerId))
+            {
+                return BadRequest(new { message = "ID de usuário inválido." });
+            }
+
+            var newGame = new Game
+            {
+                Title = request.Title,
+                Description = request.Description,
+                Genre = request.Genre,
+                Status = request.Status
+            };
+
+            var createdGame = await _gameService.CreateGameAsync(newGame, ownerId);
+            return CreatedAtAction(nameof(GetGameById), new { id = createdGame.Id }, createdGame);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Erro interno do servidor.", details = ex.Message });
+        }
+    }
+
+    private IActionResult Forbid(object value)
+    {
+        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -58,16 +100,35 @@ public class GamesController : ControllerBase
     /// <param name="id">O ID do jogo.</param>
     /// <returns>Os detalhes do jogo.</returns>
     /// <response code="200">Retorna o jogo solicitado.</response>
+    /// <response code="400">ID inválido fornecido.</response>
     /// <response code="404">Jogo não encontrado.</response>
+    /// <response code="500">Erro interno do servidor.</response>
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetGameById(Guid id)
     {
-        var game = await _gameService.GetGameByIdAsync(id);
-        if (game == null)
+        try
         {
-            return NotFound(new { message = "Jogo não encontrado." });
+            if (id == Guid.Empty)
+            {
+                return BadRequest(new { message = "ID do jogo inválido." });
+            }
+
+            var game = await _gameService.GetGameByIdAsync(id);
+            if (game == null)
+            {
+                return NotFound(new { message = "Jogo não encontrado." });
+            }
+            
+            return Ok(game);
         }
-        return Ok(game);
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Erro interno do servidor.", details = ex.Message });
+        }
     }
 
     /// <summary>
@@ -75,11 +136,19 @@ public class GamesController : ControllerBase
     /// </summary>
     /// <returns>Uma lista de todos os jogos.</returns>
     /// <response code="200">Retorna a lista de jogos.</response>
+    /// <response code="500">Erro interno do servidor.</response>
     [HttpGet]
     public async Task<IActionResult> GetAllGames()
     {
-        var games = await _gameService.GetAllGamesAsync();
-        return Ok(games);
+        try
+        {
+            var games = await _gameService.GetAllGamesAsync();
+            return Ok(games);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Erro interno do servidor.", details = ex.Message });
+        }
     }
 
     /// <summary>
@@ -92,24 +161,66 @@ public class GamesController : ControllerBase
     /// <param name="request">Os novos dados do jogo.</param>
     /// <returns>Nenhum conteúdo.</returns>
     /// <response code="204">Jogo atualizado com sucesso.</response>
+    /// <response code="400">Dados inválidos fornecidos.</response>
     /// <response code="401">Usuário não autenticado.</response>
     /// <response code="403">Usuário não tem permissão para editar este jogo.</response>
     /// <response code="404">Jogo não encontrado.</response>
+    /// <response code="500">Erro interno do servidor.</response>
     [HttpPut("{id:guid}")]
     [Authorize]
     public async Task<IActionResult> UpdateGame(Guid id, [FromBody] GameRequest request)
     {
-        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var updatedGame = new Game
+        try
         {
-            Title = request.Title,
-            Description = request.Description,
-            Genre = request.Genre,
-            Status = request.Status
-        };
+            // Validações básicas
+            if (id == Guid.Empty)
+            {
+                return BadRequest(new { message = "ID do jogo inválido." });
+            }
 
-        await _gameService.UpdateGameAsync(id, updatedGame, userId);
-        return NoContent();
+            if (string.IsNullOrWhiteSpace(request.Title))
+            {
+                return BadRequest(new { message = "O título do jogo é obrigatório." });
+            }
+
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized(new { message = "Token inválido." });
+            }
+
+            if (!Guid.TryParse(userIdClaim, out var userId))
+            {
+                return BadRequest(new { message = "ID de usuário inválido." });
+            }
+
+            var updatedGame = new Game
+            {
+                Title = request.Title,
+                Description = request.Description,
+                Genre = request.Genre,
+                Status = request.Status
+            };
+
+            await _gameService.UpdateGameAsync(id, updatedGame, userId);
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(new { message = ex.Message });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Erro interno do servidor.", details = ex.Message });
+        }
     }
 
     /// <summary>
@@ -121,16 +232,52 @@ public class GamesController : ControllerBase
     /// <param name="id">O ID do jogo a ser deletado.</param>
     /// <returns>Nenhum conteúdo.</returns>
     /// <response code="204">Jogo deletado com sucesso.</response>
+    /// <response code="400">ID inválido fornecido.</response>
     /// <response code="401">Usuário não autenticado.</response>
     /// <response code="403">Usuário não tem permissão para deletar este jogo.</response>
     /// <response code="404">Jogo não encontrado.</response>
+    /// <response code="500">Erro interno do servidor.</response>
     [HttpDelete("{id:guid}")]
     [Authorize]
     public async Task<IActionResult> DeleteGame(Guid id)
     {
-        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        await _gameService.DeleteGameAsync(id, userId);
-        return NoContent();
+        try
+        {
+            if (id == Guid.Empty)
+            {
+                return BadRequest(new { message = "ID do jogo inválido." });
+            }
+
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized(new { message = "Token inválido." });
+            }
+
+            if (!Guid.TryParse(userIdClaim, out var userId))
+            {
+                return BadRequest(new { message = "ID de usuário inválido." });
+            }
+
+            await _gameService.DeleteGameAsync(id, userId);
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(new { message = ex.Message });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Erro interno do servidor.", details = ex.Message });
+        }
     }
 }
 
