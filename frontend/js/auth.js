@@ -1,5 +1,5 @@
 // Configuração da API
-const API_BASE_URL = 'https://localhost:7296'; // 🔧 AJUSTE AQUI SUA URL DO BACKEND
+const API_BASE_URL = 'http://localhost:5121'; //
 
 // Elementos do DOM
 const loginForm = document.getElementById('loginForm');
