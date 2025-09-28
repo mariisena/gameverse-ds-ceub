@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GameVerse - Dashboard</title>
     <link rel="stylesheet" href="css/dashboard.css">
 </head>
+
 <body>
     <!-- Header com navegação -->
     <header class="header">
@@ -46,7 +48,7 @@
                             <p>Jogos Cadastrados</p>
                         </div>
                     </div>
-                    
+
                     <div class="stat-card">
                         <div class="stat-icon">📝</div>
                         <div class="stat-info">
@@ -54,7 +56,7 @@
                             <p>Posts Publicados</p>
                         </div>
                     </div>
-                    
+
                     <div class="stat-card">
                         <div class="stat-icon">🚀</div>
                         <div class="stat-info">
@@ -75,14 +77,14 @@
                         <p>Cadastre um novo projeto de jogo</p>
                         <a href="games.html" class="action-btn">Criar Jogo</a>
                     </div>
-                    
+
                     <div class="action-card">
                         <div class="action-icon">📝</div>
                         <h4>Novo Post</h4>
                         <p>Escreva um devlog ou post</p>
                         <a href="posts.html" class="action-btn">Criar Post</a>
                     </div>
-                    
+
                     <div class="action-card">
                         <div class="action-icon">📊</div>
                         <h4>Ver Relatórios</h4>
@@ -100,7 +102,7 @@
                         <div class="loading">Carregando...</div>
                     </div>
                 </div>
-                
+
                 <div class="recent-section">
                     <h3>Últimos Posts</h3>
                     <div id="recentPosts" class="recent-list">
@@ -112,7 +114,9 @@
     </main>
 
     <!-- Scripts -->
+    <script src="js/api-config.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/dashboard.js"></script>
 </body>
+
 </html>

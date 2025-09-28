@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GameVerse - Login</title>
     <link rel="stylesheet" href="css/login.css">
+
 </head>
 <body>
     <div class="container">
@@ -39,6 +40,8 @@
         </div>
     </div>
     
-    <script src="js/auth.js"></script>
+<script src="js/api-config.js"></script>
+<script src="js/auth.js"></script>
+
 </body>
 </html>
