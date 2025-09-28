@@ -19,6 +19,22 @@ builder.Services.AddDbContext<GameVerseDbContext>(options =>
     options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 21)))
 );
 
+// 2. Configuração de CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins(
+                "http://127.0.0.1:5500",    // Live Server padrão
+                "http://localhost:3000",     // React/Vue
+                "http://localhost:8080",     // Outras ferramentas
+                "file://")                   // Arquivos locais
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();          // Para cookies/auth se necessário
+    });
+});
+
 // 3. Configuração de autenticação JWT
 var jwtKey = builder.Configuration["Jwt:Key"];
 if (string.IsNullOrEmpty(jwtKey))
@@ -44,7 +60,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// 3. Injeção de Dependência
+// 4. Injeção de Dependência
 // Serviços do container
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -93,6 +109,7 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+app.UseCors("AllowFrontend");
 
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
