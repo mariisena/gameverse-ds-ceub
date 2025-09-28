@@ -1,7 +1,7 @@
-// pages/Login.jsx
-import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+// components/Login.js
+import { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -29,22 +29,11 @@ const Login = () => {
     setLoading(true);
     setError('');
 
-    // Validação básica
-    if (!formData.identifier.trim() || !formData.password.trim()) {
-      setError('Por favor, preencha todos os campos.');
-      setLoading(false);
-      return;
-    }
-
     try {
       await login(formData);
       navigate('/dashboard');
     } catch (error) {
-      console.error('Erro no login:', error);
-      setError(
-        error.response?.data?.message || 
-        'Falha no login. Verifique suas credenciais.'
-      );
+      setError(error.response?.data?.message || 'Falha no login. Verifique suas credenciais.');
     } finally {
       setLoading(false);
     }
@@ -58,30 +47,26 @@ const Login = () => {
       
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="identifier">Email ou Nome de Usuário:</label>
+          <label>Email ou Nome de Usuário:</label>
           <input
             type="text"
-            id="identifier"
             name="identifier"
             value={formData.identifier}
             onChange={handleChange}
             required
             placeholder="Email ou nome de usuário"
-            disabled={loading}
           />
         </div>
         
         <div className="form-group">
-          <label htmlFor="password">Senha:</label>
+          <label>Senha:</label>
           <input
             type="password"
-            id="password"
             name="password"
             value={formData.password}
             onChange={handleChange}
             required
             placeholder="Sua senha"
-            disabled={loading}
           />
         </div>
         

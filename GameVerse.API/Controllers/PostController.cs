@@ -81,7 +81,7 @@ public class PostsController : ControllerBase
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Forbid(new { message = ex.Message });
+            return StatusCode(403, new { message = ex.Message });
         }
         catch (InvalidOperationException ex)
         {
@@ -91,11 +91,6 @@ public class PostsController : ControllerBase
         {
             return StatusCode(500, new { message = "Erro interno do servidor.", details = ex.Message });
         }
-    }
-
-    private IActionResult Forbid(object value)
-    {
-        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -206,7 +201,9 @@ public class PostsController : ControllerBase
             var updatedPost = new Post
             {
                 Title = request.Title,
-                BodyContent = request.BodyContent
+                BodyContent = request.BodyContent,
+                GameId = request.GameId,
+                PostType = request.PostType
             };
 
             await _postService.UpdatePostAsync(id, updatedPost, userId);
@@ -218,7 +215,7 @@ public class PostsController : ControllerBase
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Forbid(new { message = ex.Message });
+            return StatusCode(403, new { message = ex.Message });
         }
         catch (KeyNotFoundException ex)
         {
@@ -275,7 +272,7 @@ public class PostsController : ControllerBase
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Forbid(new { message = ex.Message });
+            return StatusCode(403, new { message = ex.Message });
         }
         catch (KeyNotFoundException ex)
         {

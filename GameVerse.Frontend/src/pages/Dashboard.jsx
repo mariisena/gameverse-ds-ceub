@@ -1,6 +1,9 @@
+// ../pages/Dashboard.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { gamesAPI, postsAPI } from '../services/api';
+import CreatePost from '../components/posts/CreatePost';
+import CreateGame from '../components/games/CreateGame';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -8,6 +11,7 @@ const Dashboard = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('games');
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -31,6 +35,16 @@ const Dashboard = () => {
 
   const handleLogout = () => {
     logout();
+  };
+
+  const handlePostCreated = () => {
+    setShowCreateForm(false);
+    fetchDashboardData(); // Recarregar posts
+  };
+
+  const handleGameCreated = () => {
+    setShowCreateForm(false);
+    fetchDashboardData(); // Recarregar games
   };
 
   if (loading) {
@@ -65,41 +79,77 @@ const Dashboard = () => {
         </div>
         <div className="stat-card">
           <h3>Seu Nível</h3>
-          <p className="stat-number">Iniciante</p>
+          <p className="stat-number">🎮 Iniciante</p>
         </div>
       </div>
 
       <div className="dashboard-content">
-        <div className="tabs">
+        <div className="tabs-header">
+          <div className="tabs">
+            <button 
+              className={`tab ${activeTab === 'games' ? 'active' : ''}`}
+              onClick={() => setActiveTab('games')}
+            >
+              🎮 Jogos ({games.length})
+            </button>
+            <button 
+              className={`tab ${activeTab === 'posts' ? 'active' : ''}`}
+              onClick={() => setActiveTab('posts')}
+            >
+              💬 Posts ({posts.length})
+            </button>
+          </div>
+          
           <button 
-            className={`tab ${activeTab === 'games' ? 'active' : ''}`}
-            onClick={() => setActiveTab('games')}
+            className="create-btn"
+            onClick={() => setShowCreateForm(!showCreateForm)}
           >
-            🎮 Jogos
-          </button>
-          <button 
-            className={`tab ${activeTab === 'posts' ? 'active' : ''}`}
-            onClick={() => setActiveTab('posts')}
-          >
-            💬 Posts
+            {showCreateForm ? '❌ Cancelar' : '➕ Criar Novo'}
           </button>
         </div>
+
+        {/* Formulário de Criação */}
+        {showCreateForm && (
+          <div className="create-form-section">
+            {activeTab === 'posts' ? (
+              <CreatePost 
+                onPostCreated={handlePostCreated}
+                games={games}
+              />
+            ) : (
+              <CreateGame onGameCreated={handleGameCreated} />
+            )}
+          </div>
+        )}
 
         <div className="tab-content">
           {activeTab === 'games' && (
             <div className="games-section">
-              <h2>Jogos Disponíveis</h2>
+              <h2>🎮 Jogos da Comunidade</h2>
               {games.length === 0 ? (
-                <p className="no-data">Nenhum jogo cadastrado ainda.</p>
+                <div className="no-data">
+                  <p>Nenhum jogo cadastrado ainda.</p>
+                  <p>Seja o primeiro a adicionar um jogo! 🚀</p>
+                </div>
               ) : (
                 <div className="games-grid">
                   {games.map(game => (
                     <div key={game.id} className="game-card">
                       <h3>{game.title}</h3>
-                      <p>{game.description}</p>
+                      <p>{game.description || 'Sem descrição'}</p>
                       <div className="game-meta">
-                        <span>⭐ {game.rating || 'N/A'}</span>
+                        {game.genre && <span>🎨 {game.genre}</span>}
+                        {game.status && (
+                          <span className={`status ${game.status.toLowerCase().replace(' ', '-')}`}>
+                            {game.status}
+                          </span>
+                        )}
                       </div>
+                      {game.owner && (
+                        <div className="game-author">
+                          Por: {game.owner.username || 'Usuário'}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -109,17 +159,35 @@ const Dashboard = () => {
 
           {activeTab === 'posts' && (
             <div className="posts-section">
-              <h2>Posts da Comunidade</h2>
+              <h2>💬 Posts da Comunidade</h2>
               {posts.length === 0 ? (
-                <p className="no-data">Nenhum post ainda. Seja o primeiro a postar!</p>
+                <div className="no-data">
+                  <p>Nenhum post ainda.</p>
+                  <p>Seja o primeiro a compartilhar! ✨</p>
+                </div>
               ) : (
                 <div className="posts-list">
                   {posts.map(post => (
                     <div key={post.id} className="post-card">
-                      <h3>{post.title}</h3>
-                      <p>{post.content}</p>
+                      <div className="post-header">
+                        <h3>{post.title}</h3>
+                        {post.postType && (
+                          <span className={`post-type ${post.postType}`}>
+                            {post.postType}
+                          </span>
+                        )}
+                      </div>
+                      <p className="post-content">{post.bodyContent}</p>
                       <div className="post-meta">
-                        <span>Por: {post.author?.username || 'Anônimo'}</span>
+                        {post.author && (
+                          <span>👤 Por: {post.author.username || 'Anônimo'}</span>
+                        )}
+                        {post.game && (
+                          <span>🎮 {post.game.title}</span>
+                        )}
+                        {post.createdAt && (
+                          <span>📅 {new Date(post.createdAt).toLocaleDateString('pt-BR')}</span>
+                        )}
                       </div>
                     </div>
                   ))}

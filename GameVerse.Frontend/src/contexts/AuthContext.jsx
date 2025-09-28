@@ -1,10 +1,15 @@
+// contexts/AuthContext.jsx
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { authAPI } from '../services/api';
 
 const AuthContext = createContext();
 
 export const useAuth = () => {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
+  }
+  return context;
 };
 
 export const AuthProvider = ({ children }) => {
@@ -19,18 +24,11 @@ export const AuthProvider = ({ children }) => {
     try {
       const token = localStorage.getItem('authToken');
       if (token) {
-        // Se você tiver um endpoint para pegar o perfil do usuário
-        // const response = await authAPI.getProfile();
-        // setUser(response.data);
-        
-        // Por enquanto, vamos usar um usuário mock
-        setUser({ 
-          id: 1, 
-          username: 'UsuarioTeste', 
-          email: 'teste@email.com' 
-        });
+        const response = await authAPI.getMe();
+        setUser(response.data);
       }
     } catch (error) {
+      console.error('Erro ao verificar autenticação:', error);
       localStorage.removeItem('authToken');
     } finally {
       setLoading(false);
@@ -39,49 +37,29 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      // Mock response para teste - substitua pela chamada real depois
-      const mockResponse = {
-        data: {
-          token: 'mock-jwt-token-12345',
-          user: {
-            id: 1,
-            username: credentials.email.split('@')[0],
-            email: credentials.email
-          }
-        }
-      };
+      const response = await authAPI.login(credentials);
       
-      localStorage.setItem('authToken', mockResponse.data.token);
-      setUser(mockResponse.data.user);
-      return mockResponse;
+      if (response.data.token) {
+        localStorage.setItem('authToken', response.data.token);
+        
+        // Buscar dados do usuário após login
+        const userResponse = await authAPI.getMe();
+        setUser(userResponse.data);
+      }
       
-      // DESCOMENTE QUANDO SUA API ESTIVER PRONTA:
-      // const response = await authAPI.login(credentials);
-      // localStorage.setItem('authToken', response.data.token);
-      // setUser(response.data.user);
-      // return response;
-      
+      return response;
     } catch (error) {
+      console.error('Erro no login:', error);
       throw error;
     }
   };
 
   const register = async (userData) => {
     try {
-      // Mock response para teste
-      const mockResponse = {
-        data: {
-          message: 'Usuário criado com sucesso!'
-        }
-      };
-      
-      return mockResponse;
-      
-      // DESCOMENTE QUANDO SUA API ESTIVER PRONTA:
-      // const response = await authAPI.register(userData);
-      // return response;
-      
+      const response = await authAPI.register(userData);
+      return response;
     } catch (error) {
+      console.error('Erro no registro:', error);
       throw error;
     }
   };
@@ -96,7 +74,8 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
-    loading
+    loading,
+    isAuthenticated: !!user
   };
 
   return (

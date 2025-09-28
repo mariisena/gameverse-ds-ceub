@@ -77,7 +77,7 @@ public class GamesController : ControllerBase
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Forbid(new { message = ex.Message });
+            return StatusCode(403, new { message = ex.Message });
         }
         catch (InvalidOperationException ex)
         {
@@ -87,11 +87,6 @@ public class GamesController : ControllerBase
         {
             return StatusCode(500, new { message = "Erro interno do servidor.", details = ex.Message });
         }
-    }
-
-    private IActionResult Forbid(object value)
-    {
-        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -211,7 +206,7 @@ public class GamesController : ControllerBase
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Forbid(new { message = ex.Message });
+            return StatusCode(403, new { message = ex.Message });
         }
         catch (KeyNotFoundException ex)
         {
@@ -268,7 +263,7 @@ public class GamesController : ControllerBase
         }
         catch (UnauthorizedAccessException ex)
         {
-            return Forbid(new { message = ex.Message });
+            return StatusCode(403, new { message = ex.Message });
         }
         catch (KeyNotFoundException ex)
         {

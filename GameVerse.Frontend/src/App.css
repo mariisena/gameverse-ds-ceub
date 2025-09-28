@@ -1,3 +1,4 @@
+/* ../App.cs
 /* Home Page Styles */
 .home-container {
   min-height: 100vh;
@@ -321,31 +322,243 @@
   font-weight: bold;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .home-header h1 {
-    font-size: 2.5rem;
+/* Create Post and Game Forms */
+.create-post, .create-game {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  border-left: 4px solid #3498db;
+}
+
+.create-post h3, .create-game h3 {
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+.create-post textarea, .create-game textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.create-post select, .create-game select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background: white;
+}
+
+/* Post and Game Cards */
+.post-card, .game-card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-left: 4px solid #e74c3c;
+}
+
+.game-card {
+  border-left-color: #3498db;
+}
+
+.post-card h3, .game-card h3 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.post-meta, .game-meta {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #7f8c8d;
+}
+
+.post-type {
+  background: #e74c3c;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+.game-status {
+  background: #3498db;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+/* Success Message */
+.success-message {
+  background-color: #27ae60;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* Dashboard Improvements */
+.tabs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.create-btn {
+  background: #27ae60;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.create-btn:hover {
+  background: #219a52;
+}
+
+.create-form-section {
+  margin-bottom: 30px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
   }
-  
-  .home-buttons {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .cta-button {
-    width: 200px;
-  }
-  
-  .dashboard-header {
-    flex-direction: column;
-    gap: 15px;
-    text-align: center;
-  }
-  
-  .tabs {
-    flex-direction: column;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
+
+/* Post Header */
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+.post-header h3 {
+  margin: 0;
+  flex: 1;
+}
+
+.post-content {
+  line-height: 1.6;
+  margin-bottom: 10px;
+  white-space: pre-wrap;
+}
+
+/* Status and Type Badges */
+.status {
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.status.em-desenvolvimento {
+  background: #f39c12;
+  color: white;
+}
+
+.status.lançado {
+  background: #27ae60;
+  color: white;
+}
+
+.status.em-beta {
+  background: #3498db;
+  color: white;
+}
+
+.status.cancelado {
+  background: #e74c3c;
+  color: white;
+}
+
+.post-type {
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  background: #9b59b6;
+  color: white;
+  white-space: nowrap;
+}
+
+.post-type.devlog {
+  background: #e67e22;
+}
+
+.post-type.review {
+  background: #e74c3c;
+}
+
+.post-type.news {
+  background: #3498db;
+}
+
+.post-type.discussion {
+  background: #2ecc71;
+}
+
+/* Game Author */
+.game-author {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #ecf0f1;
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  font-style: italic;
+}
+
+/* Games Grid */
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tabs-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .create-btn {
+    align-self: flex-end;
+  }
+  
+  .post-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .games-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 
 /* Mobile Improvements */
 @media (max-width: 480px) {

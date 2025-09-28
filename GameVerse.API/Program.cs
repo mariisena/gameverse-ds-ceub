@@ -22,12 +22,14 @@ builder.Services.AddDbContext<GameVerseDbContext>(options =>
 // 2. Configuração de CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReact", policy =>
-    {
-        policy.WithOrigins("http://localhost:3000")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
+    options.AddPolicy("AllowReactApp",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000", "http://localhost:3001")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();      // ✅ Importante para cookies/tokens
+        });
 });
 
 // 3. Configuração de autenticação JWT
@@ -36,7 +38,7 @@ if (string.IsNullOrEmpty(jwtKey))
 {
     throw new InvalidOperationException("A chave secreta do JWT não está configurada no appsettings.json");
 }
-
+// ✅ Validação robusta da chave
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -51,7 +53,8 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
         ValidateIssuer = false, // Não estamos validando quem emitiu
-        ValidateAudience = false // Não estamos validando para quem se destina
+        ValidateAudience = false, // Não estamos validando para quem se destina
+        ClockSkew = TimeSpan.Zero // Remove delay padrão de 5 minutos
     };
 });
 
@@ -75,7 +78,7 @@ builder.Services.AddSwaggerGen(options =>
     var xmlFilename = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 
-    // Configuração para JWT no Swagger
+    // ✅ JWT no Swagger
     options.AddSecurityDefinition("Bearer", new()
     {
         Description = "JWT Authorization header using the Bearer scheme.",
@@ -101,6 +104,7 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
@@ -111,7 +115,11 @@ app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "GameVerse API V1");
+        c.RoutePrefix = string.Empty; // Swagger na raiz
+    });
 }
 
 app.UseHttpsRedirection();
@@ -120,6 +128,15 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHealthChecks("/health");
+
+// Log da URL da aplicação
+var urls = builder.Configuration["urls"] ?? "http://localhost:5121";
+Console.WriteLine($"🚀 GameVerse API rodando em: {urls}");
+Console.WriteLine($"📚 Swagger disponível em: {urls}/swagger");
+Console.WriteLine($"🔐 Autenticação JWT: {(string.IsNullOrEmpty(jwtKey) ? "❌ Não configurada" : "✅ Configurada")}");
+Console.WriteLine($"🌐 CORS: ✅ Configurado para React (portas 3000, 3001)");
+Console.WriteLine($"🗄️  Database: {connectionString?.Split(';').FirstOrDefault()?.Replace("Server=", "")}");
 
 app.Run();
 
