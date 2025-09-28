@@ -22,20 +22,11 @@ builder.Services.AddDbContext<GameVerseDbContext>(options =>
 // 2. Configuração de CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend", policy =>
+    options.AddPolicy("AllowReact", policy =>
     {
-        policy.WithOrigins(
-                "http://127.0.0.1:5500",    // Live Server padrão
-                "http://127.0.0.1:3000",    // VS Code Live Preview
-                "http://localhost:3000",     // React/Vue
-                "http://localhost:5500",     // Live Server localhost
-                "http://localhost:8080",     // Outras ferramentas
-                "file://",                   // Arquivos locais
-                "null")                      // Para file:// protocol
-              .AllowAnyMethod()
+        policy.WithOrigins("http://localhost:3000")
               .AllowAnyHeader()
-              .SetIsOriginAllowed(origin => true) // Permite qualquer origem em dev
-              .AllowCredentials();          // Para cookies/auth se necessário
+              .AllowAnyMethod();
     });
 });
 
@@ -83,7 +74,7 @@ builder.Services.AddSwaggerGen(options =>
 {
     var xmlFilename = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-    
+
     // Configuração para JWT no Swagger
     options.AddSecurityDefinition("Bearer", new()
     {
@@ -92,10 +83,10 @@ builder.Services.AddSwaggerGen(options =>
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.Http,
         Scheme = "bearer",
-        BearerFormat = "JWT" 
+        BearerFormat = "JWT"
     });
 
-    options.AddSecurityRequirement(new ()
+    options.AddSecurityRequirement(new()
     {
         {
             new ()
@@ -113,7 +104,7 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-app.UseCors("AllowFrontend");
+app.UseCors("AllowReactApp");
 
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
