@@ -26,11 +26,15 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
                 "http://127.0.0.1:5500",    // Live Server padrão
+                "http://127.0.0.1:3000",    // VS Code Live Preview
                 "http://localhost:3000",     // React/Vue
+                "http://localhost:5500",     // Live Server localhost
                 "http://localhost:8080",     // Outras ferramentas
-                "file://")                   // Arquivos locais
+                "file://",                   // Arquivos locais
+                "null")                      // Para file:// protocol
               .AllowAnyMethod()
               .AllowAnyHeader()
+              .SetIsOriginAllowed(origin => true) // Permite qualquer origem em dev
               .AllowCredentials();          // Para cookies/auth se necessário
     });
 });
