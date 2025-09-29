@@ -24,6 +24,8 @@ public class Post
     [StringLength(20)]
     public string PostType { get; set; } = "devlog"; // Ex: 'devlog', 'simple_post'
 
+    public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

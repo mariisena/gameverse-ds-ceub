@@ -1,0 +1,83 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.auth-container-register {
+  width: 100%;
+  margin: 50px auto;
+  padding: 25px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-family: Arial, sans-serif;
+}
+
+.auth-container-register h2 {
+    color: #000000;
+    margin-bottom: 30px;
+    font-weight: 600;
+    text-align: center;
+}
+
+
+
+.form-group-register input:focus {
+  border-color: #5a67d8;
+  box-shadow: 0 0 5px rgba(90, 103, 216, 0.4);
+}
+
+.form-group-register {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.form-group-register label {
+  width: 150px; /* largura fixa pros labels */
+  font-weight: bold;
+  color: #333;
+  margin-right: 10px;
+  text-align: right; /* alinhar texto à direita */
+}
+
+.form-group-register input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  transition: border 0.3s;
+}
+
+.auth-link-register {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.auth-link-register a {
+  color: #3498db;
+  text-decoration: none;
+}
+
+.auth-link-register a:hover {
+  text-decoration: underline;
+}
+
+/* Botão ocupa largura total */
+.auth-container-register button {
+  width: 100%;
+  padding: 12px;
+  background: #30011E;
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.auth-container-register button:hover {
+  background: #434190;
+}

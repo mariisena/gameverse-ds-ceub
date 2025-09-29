@@ -7,6 +7,10 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import '../src/styles/';
+//import Feed from './pages/Feed';
+//import Profile from './pages/Profile';
+//import GameDetails from './pages/GameDetails';
 import './App.css';
 
 const PrivateRoute = ({ children }) => {
@@ -29,6 +33,9 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/feed" element={<Feed />} />
+            <Route path="/profile/:username?" element={<Profile />} />
+            <Route path="/games/:id" element={<GameDetails />} />
             <Route 
               path="/dashboard" 
               element={

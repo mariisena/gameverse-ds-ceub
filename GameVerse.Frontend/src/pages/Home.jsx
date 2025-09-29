@@ -2,6 +2,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import '../styles/Home.css'
+
 
 const Home = () => {
   const { user } = useAuth();

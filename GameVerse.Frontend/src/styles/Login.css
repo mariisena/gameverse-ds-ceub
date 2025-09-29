@@ -1,0 +1,194 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.alinhar-login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.auth-container-login {
+    width: 400px;
+    max-width: auto;
+    background: white;
+    border-radius: 10px;
+    padding: 40px;
+    box-shadow: 10px 10px rgb(84, 84, 84);
+    margin-bottom: 10px;
+}
+
+
+.auth-container-login h2 {
+    color: #000000;
+    margin-bottom: 30px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+    font-weight: 500;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e1e1e1;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+input:focus {
+    outline: none;
+    border-color: #002fff;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    margin-top: 10px;
+}
+
+button:hover {
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.error-message {
+    background: #ff4757;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.links {
+    margin-top: 25px;
+    font-size: 14px;
+}
+
+.links p {
+    margin-bottom: 10px;
+}
+
+.links a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.links a:hover {
+    text-decoration: underline;
+}
+
+/* === BACKGROUND ANIMATIONS === */
+.bg-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+    /* fica atrás do login */
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+}
+
+.floating-shapes {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.shape {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: rgba(102, 126, 234, 0.7);
+    /* cor visível (roxinho) */
+    border-radius: 50%;
+    /* bolinhas */
+    animation: float 10s infinite ease-in-out;
+}
+
+/* posições diferentes para cada shape */
+.floating-shapes .shape:nth-child(1) {
+    top: 20%;
+    left: 10%;
+    animation-duration: 8s;
+    width: 80px;
+    height: 80px;
+    top: 20%;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+
+.floating-shapes .shape:nth-child(2) {
+    width: 60px;
+    height: 60px;
+    top: 60%;
+    right: 10%;
+    animation-delay: 2s;
+    animation-duration: 12s;
+}
+
+.floating-shapes .shape:nth-child(3) {
+    width: 100px;
+    height: 100px;
+    top: 80%;
+    left: 20%;
+    animation-duration: 15s;
+}
+
+.floating-shapes .shape:nth-child(4) {
+    width: 40px;
+    height: 40px;
+    top: 30%;
+    right: 30%;
+    animation-duration: 18s;
+}
+
+/* animação */
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-20px) rotate(180deg);
+    }
+}

@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import '../styles/Register.css';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -98,12 +99,12 @@ const Register = () => {
   };
 
   return (
-    <div className="auth-container">
+    <div className="auth-container-register">
       <h2>Criar Conta no GameVerse</h2>
       {error && <div className="error-message">{error}</div>}
       
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
+        <div className="form-group-register">
           <label htmlFor="fullName">Nome Completo:</label>
           <input
             type="text"
@@ -117,7 +118,7 @@ const Register = () => {
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-group-register">
           <label htmlFor="username">Nome de Usuário:</label>
           <input
             type="text"
@@ -131,7 +132,7 @@ const Register = () => {
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-group-register">
           <label htmlFor="email">Email:</label>
           <input
             type="email"
@@ -145,7 +146,7 @@ const Register = () => {
           />
         </div>
         
-        <div className="form-group">
+        <div className="form-group-register">
           <label htmlFor="password">Senha:</label>
           <input
             type="password"
@@ -159,7 +160,7 @@ const Register = () => {
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-group-register">
           <label htmlFor="confirmPassword">Confirmar Senha:</label>
           <input
             type="password"
@@ -178,7 +179,7 @@ const Register = () => {
         </button>
       </form>
       
-      <p className="auth-link">
+      <p className="auth-link-register">
         Já tem uma conta? <Link to="/login">Faça login aqui</Link>
       </p>
     </div>
